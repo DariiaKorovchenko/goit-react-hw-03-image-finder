@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import css from './ImageGalleryItem.module.css';
 import { Modal } from 'components/Modal/Modal';
 
-export const ImageGalleryItem = ({
+export const ImageGalleryItem = (
   id,
   largeImage,
   tags,
   preview,
   openModal,
-  statusModal,
-}) => {
+  statusModal
+) => {
   return (
     <li className={css.ImageGalleryItem} id={id} onClick={() => openModal()}>
       <img src={preview} alt={tags} className={css.ImageGalleryItem_image} />

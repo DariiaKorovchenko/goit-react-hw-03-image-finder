@@ -26,8 +26,11 @@ export class App extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.setState({ materials: [], status: 'pending' });
+    if (
+      this.state.pageCounter !== prevState.pageCounter ||
+      this.state.searchQuery !== prevState.searchQuery
+    ) {
+      this.setState({ status: 'pending' });
 
       fetch(
         `https://pixabay.com/api/?q=${this.state.searchQuery}&page=1&key=38325031-07abeaa9a45e557a48162dc21&image_type=photo&orientation=horizontal&page=${this.state.pageCounter}&per_page=12`
@@ -63,7 +66,15 @@ export class App extends React.Component {
               openModal={this.toggleModal}
               statusModal={modalStatus}
             />
-            <LoadMoreButton onClick={this.componentDidUpdate} />
+            <LoadMoreButton>
+              <button
+                type="button"
+                className={css.Button}
+                onClick={() => this.componentDidUpdate()}
+              >
+                Load more
+              </button>
+            </LoadMoreButton>
           </div>
         )}
       </div>
