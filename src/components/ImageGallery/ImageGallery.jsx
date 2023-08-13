@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import css from './ImageGallery.module.css';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = (items, openModal, statusModal) => {
+export const ImageGallery = items => {
   return (
     <ul className={css.ImageGallery}>
       {items.items.map(({ id, largeImageURL, tags, webformatURL }) => {
@@ -14,8 +14,6 @@ export const ImageGallery = (items, openModal, statusModal) => {
             largeImage={largeImageURL}
             description={tags}
             preview={webformatURL}
-            openModal={openModal}
-            statusModal={statusModal}
           />
         );
       })}

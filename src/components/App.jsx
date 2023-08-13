@@ -3,7 +3,7 @@ import css from './App.module.css';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
-import { LoadMoreButton } from './Button/Button';
+import { Button } from './Button/Button';
 
 export class App extends React.Component {
   state = {
@@ -12,17 +12,16 @@ export class App extends React.Component {
     pageCounter: 1,
     error: null,
     status: 'idle',
-    modalStatus: false,
-  };
-
-  toggleModal = () => {
-    this.setState({
-      modal: true,
-    });
   };
 
   handleFormSubmit = search => {
-    this.setState({ searchQuery: search });
+    this.setState({ searchQuery: search, pageCounter: 1 });
+  };
+
+  handleCounterPage = () => {
+    this.setState(prevState => {
+      return { pageCounter: prevState.pageCounter + 1 };
+    });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -37,11 +36,17 @@ export class App extends React.Component {
       )
         .then(response => response.json())
         .then(data => {
-          if (data.hits.length !== 0) {
+          if (data.hits.length !== 0 && this.state.pageCounter === 1) {
             this.setState({
               materials: data.hits,
               status: 'resolved',
-              pageCounter: (prevState.pageCounter += 1),
+            });
+            return;
+          }
+          if (prevState.materials !== null) {
+            this.setState({
+              materials: [...prevState.materials, ...data.hits],
+              status: 'resolved',
             });
           } else {
             return Promise.reject(new Error('Not found'));
@@ -52,31 +57,15 @@ export class App extends React.Component {
   }
 
   render() {
-    const { materials, error, status, modalStatus } = this.state;
+    const { materials, error, status } = this.state;
 
     return (
       <div className={css.App}>
         <Searchbar onSubmit={this.handleFormSubmit} />
-        {status === 'pending' && <Loader />}
         {status === 'rejected' && <h1>{error.message}</h1>}
-        {status === 'resolved' && (
-          <div>
-            <ImageGallery
-              items={materials}
-              openModal={this.toggleModal}
-              statusModal={modalStatus}
-            />
-            <LoadMoreButton>
-              <button
-                type="button"
-                className={css.Button}
-                onClick={() => this.componentDidUpdate()}
-              >
-                Load more
-              </button>
-            </LoadMoreButton>
-          </div>
-        )}
+        <ImageGallery items={materials} />
+        {materials.length !== 0 && <Button loadMore={this.handleCounterPage} />}
+        {status === 'pending' && <Loader />}
       </div>
     );
   }

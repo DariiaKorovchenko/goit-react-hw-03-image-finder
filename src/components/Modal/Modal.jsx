@@ -1,18 +1,28 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import css from './Modal.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
 export class Modal extends React.Component {
-  // componentDidMount() {
-  //   window.addEventListener('keydown', event => {
-  //     if (event.code === 'Escape') {
+  static propTypes = {
+    toggleModal: PropTypes.func.isRequired,
+  };
 
-  //     }
-  //   })
-  // }
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeydownListener);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeydownListener);
+  }
+
+  handleKeydownListener = event => {
+    if (event.code === 'Escape') {
+      this.props.toggleModal();
+    }
+  };
 
   render() {
     return createPortal(
