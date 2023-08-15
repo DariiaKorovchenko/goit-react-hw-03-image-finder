@@ -1,5 +1,6 @@
 import React from 'react';
 import css from './App.module.css';
+import { fetchService } from './services/search-api';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
@@ -15,7 +16,7 @@ export class App extends React.Component {
   };
 
   handleFormSubmit = search => {
-    this.setState({ searchQuery: search, pageCounter: 1 });
+    this.setState({ searchQuery: search, materials: [], pageCounter: 1 });
   };
 
   handleCounterPage = () => {
@@ -25,18 +26,16 @@ export class App extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
+    const { searchQuery, pageCounter } = this.state;
     if (
-      this.state.pageCounter !== prevState.pageCounter ||
-      this.state.searchQuery !== prevState.searchQuery
+      pageCounter !== prevState.pageCounter ||
+      searchQuery !== prevState.searchQuery
     ) {
       this.setState({ status: 'pending' });
 
-      fetch(
-        `https://pixabay.com/api/?q=${this.state.searchQuery}&page=1&key=38325031-07abeaa9a45e557a48162dc21&image_type=photo&orientation=horizontal&page=${this.state.pageCounter}&per_page=12`
-      )
-        .then(response => response.json())
+      fetchService(searchQuery, pageCounter)
         .then(data => {
-          if (data.hits.length !== 0 && this.state.pageCounter === 1) {
+          if (data.hits.length !== 0 && pageCounter === 1) {
             this.setState({
               materials: data.hits,
               status: 'resolved',
@@ -63,8 +62,8 @@ export class App extends React.Component {
       <div className={css.App}>
         <Searchbar onSubmit={this.handleFormSubmit} />
         {status === 'rejected' && <h1>{error.message}</h1>}
-        <ImageGallery items={materials} />
-        {materials.length !== 0 && <Button loadMore={this.handleCounterPage} />}
+        {materials.length !== 0 && <ImageGallery items={materials} />}
+        {status === 'resolved' && <Button loadMore={this.handleCounterPage} />}
         {status === 'pending' && <Loader />}
       </div>
     );
